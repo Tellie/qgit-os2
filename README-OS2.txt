@@ -5,7 +5,7 @@
 ****                All the money you send will go to the QT5 project                          ****
 ===================================================================================================
 
-qgit v2.12   
+qgit v2.13
 
  CONTENTS OF THIS FILE
  =====================
@@ -32,7 +32,7 @@ qgit v2.12
 1. INTRODUCTION
 ===============
 
-Welcome to qgit v2.12 port for OS/2 and eComStation.
+Welcome to qgit v2.13 port for OS/2 and eComStation.
 
 With qgit you will be able to browse revisions history, view patch content
 and changed files, graphically following different development branches.
