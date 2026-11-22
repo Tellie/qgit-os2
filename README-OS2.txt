@@ -127,6 +127,10 @@ Compiled now with Qt v5.15.2
 
 Changelog:
 
+Update to upstream qgit (tibirna/qgit 751cb10, sept 2026): rename branch,
+  confirmation for drag and drop, fix for the first commit
+OS/2: scripts are run via sh, files and patches are written without CRLF
+OS/2: fix for repositories when qgit is started from a subdirectory
 Update to the new upstream version 2.12
 
 Stay tuned.
