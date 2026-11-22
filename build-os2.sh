@@ -23,6 +23,7 @@
 #     QT6_PREFIX   prefix van Qt6         (standaard h:/usr/qt6-683)
 #     PREFIX       installatiemap         (standaard WORKDIR/dist-qt5 of -qt6)
 #     JOBS         parallelle jobs        (standaard 2)
+#     QUIET=1      uitvoer alleen in de log, niet op het scherm
 #
 #  In CMD.EXE: eerst "set JOBS=4" enz., daarna sh build-os2.sh.
 #  Alleen POSIX-sh, geen bash-ismen.
@@ -68,9 +69,18 @@ have() { command -v "$1" >/dev/null 2>&1; }
 run() {
     printf '%s    $ %s%s\n' "$GREY" "$*" "$RESET"
     printf '$ %s\n' "$*" >> "$LOG"
-    "$@" >> "$LOG" 2>&1
-    rc=$?
-    if [ $rc -ne 0 ]; then
+    if [ "$QUIET" = "1" ]; then
+        "$@" >> "$LOG" 2>&1
+        rc=$?
+    else
+        # uitvoer op het scherm EN in de log; exitcode via een bestand,
+        # want PIPESTATUS bestaat niet in POSIX-sh
+        rcfile=$WORKDIR/.build-os2.rc
+        { "$@" 2>&1; echo $? > "$rcfile"; } | tee -a "$LOG"
+        rc=$(cat "$rcfile" 2>/dev/null || echo 1)
+        rm -f "$rcfile"
+    fi
+    if [ "$rc" -ne 0 ]; then
         printf '%s--- foutregels uit %s ---%s\n' "$YELLOW" "$LOG" "$RESET"
         grep -n -E "error|Error|undefined reference|No such file|not found" "$LOG" \
             | tail -n 20
