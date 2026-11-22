@@ -131,6 +131,7 @@ Update to upstream qgit (tibirna/qgit 751cb10, sept 2026): rename branch,
   confirmation for drag and drop, fix for the first commit
 OS/2: scripts are run via sh, files and patches are written without CRLF
 OS/2: fix for repositories when qgit is started from a subdirectory
+OS/2: build script build-os2.sh (Qt5 or Qt 6.8.3, e.g. "sh build-os2.sh qt6")
 Update to the new upstream version 2.12
 
 Stay tuned.

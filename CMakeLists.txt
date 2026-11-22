@@ -17,9 +17,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-# Select the Qt major version and its dependencies\
+# Select the Qt major version and its dependencies
+# OS/2: Qt5 is the default (available everywhere via RPM); Qt6 works too
+# (e.g. -DQT_PACKAGE=Qt6 with Qt 6.8.3) but needs the Core5Compat module.
 set(QT_PACKAGE "Qt5" CACHE STRING "Major Qt version")
-set_property(CACHE QT_PACKAGE PROPERTY STRINGS "Qt5" "Qt4")
+set_property(CACHE QT_PACKAGE PROPERTY STRINGS "Qt5" "Qt6" "Qt4")
 
 find_package(QT NAMES ${QT_PACKAGE} REQUIRED)
 set(QT Qt${QT_VERSION_MAJOR})

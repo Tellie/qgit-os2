@@ -20,3 +20,10 @@ qgit.pro.*
 qgit.qbs.*
 src/release
 .qmake.stash
+
+# OS/2 build script (build-os2.sh)
+/build-qt5/
+/build-qt6/
+/dist-qt5/
+/dist-qt6/
+/build-os2-*.log
