@@ -3,14 +3,25 @@
 #  build-os2.sh  -  qgit bouwen op OS/2 (ArcaOS) met Qt5 of Qt 6.8.3
 #
 #  Gebruik:   sh build-os2.sh [qt5|qt6] [stap]
+#
 #     qt5   = Qt 5.15.2 uit RPM (standaard)
 #     qt6   = Qt 6.8.3 in h:/usr/qt6-683 (heeft Core5Compat nodig)
 #     stap  = all (standaard) | configure | build | install | clean
 #
+#  Bouwen BUITEN de repo: ga naar de bouwmap en roep het script met
+#  het volledige pad aan, bv. in CMD.EXE:
+#     g:
+#     cd \qgit-os2
+#     sh h:/git/qgit-os2/build-os2.sh qt6
+#  De broncode komt dan uit h:/git/qgit-os2 (de map van het script),
+#  build-qt6, dist-qt6 en de log komen in g:/qgit-os2.
+#
 #  Instelbaar via omgevingsvariabelen:
+#     SRCDIR       qgit-broncode          (standaard: map van dit script)
+#     WORKDIR      bouwmap                (standaard: huidige map)
 #     QT5_PREFIX   prefix van Qt5         (standaard leeg: CMake zoekt zelf)
 #     QT6_PREFIX   prefix van Qt6         (standaard h:/usr/qt6-683)
-#     PREFIX       installatiemap         (standaard ./dist-qt5 of ./dist-qt6)
+#     PREFIX       installatiemap         (standaard WORKDIR/dist-qt5 of -qt6)
 #     JOBS         parallelle jobs        (standaard 2)
 #
 #  In CMD.EXE: eerst "set JOBS=4" enz., daarna sh build-os2.sh.
@@ -29,11 +40,17 @@ case "$QTVER" in
              exit 1 ;;
 esac
 
-SRCDIR=$(pwd)
-BUILDDIR=build-$QTVER
-PREFIX=${PREFIX:-$SRCDIR/dist-$QTVER}
+# Broncode: standaard de map waar dit script staat (de repo),
+# bouwen: standaard de huidige map. Beide als absoluut pad, met /.
+fwd0() { printf '%s\n' "$1" | tr '\\' /; }
+SCRIPTDIR=$(cd "$(dirname "$0")" && pwd)
+SRCDIR=$(fwd0 "${SRCDIR:-$SCRIPTDIR}")
+WORKDIR=$(fwd0 "${WORKDIR:-$(pwd)}")
+mkdir -p "$WORKDIR" && WORKDIR=$(cd "$WORKDIR" && pwd)
+BUILDDIR=$WORKDIR/build-$QTVER
+PREFIX=$(fwd0 "${PREFIX:-$WORKDIR/dist-$QTVER}")
 JOBS=${JOBS:-2}
-LOG=$SRCDIR/build-os2-$QTVER.log
+LOG=$WORKDIR/build-os2-$QTVER.log
 
 # ------------------------------------------------------------------
 #  Kleuren
@@ -69,9 +86,10 @@ fwd() { printf '%s\n' "$1" | tr '\\' /; }
 # ------------------------------------------------------------------
 check_env() {
     [ -f "$SRCDIR/CMakeLists.txt" ] && [ -f "$SRCDIR/src/qgit.cpp" ] \
-        || die "draai dit script in de qgit-os2-map"
+        || die "geen qgit-broncode in $SRCDIR (zet SRCDIR)"
 
-    printf '\n%sqgit voor OS/2 - %s%s\n\n' "$CYAN" "$QT_PACKAGE" "$RESET"
+    printf '\n%sqgit voor OS/2 - %s%s\n' "$CYAN" "$QT_PACKAGE" "$RESET"
+    printf '  broncode  %s\n  bouwmap   %s\n  install   %s\n\n' "$SRCDIR" "$WORKDIR" "$PREFIX"
     printf '%s--- Controle ---%s\n' "$CYAN" "$RESET"
 
     have cmake || die "cmake niet gevonden in PATH"
