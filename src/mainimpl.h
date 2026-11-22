@@ -8,8 +8,14 @@
 #define MAINIMPL_H
 
 #include <QProcess>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QRegExp>
+#define QRegularExpression QRegExp
+#else
 #include <QRegularExpression>
+#endif
 #include <QDir>
+#include <QMessageBox>
 #include "exceptionmanager.h"
 #include "common.h"
 #include "ui_mainview.h"
@@ -119,6 +125,7 @@ protected slots:
 	void ActAmend_activated();
 	void ActCheckout_activated();
 	void ActBranch_activated();
+	void ActBranchRename_activated();
 	void ActTag_activated();
 	void ActDelete_activated();
 	void ActPush_activated();
@@ -170,6 +177,16 @@ private:
 	template<class X> QList<X*>* getTabs(QWidget* tabPage = NULL);
 	template<class X> X* firstTab(QWidget* startPage = NULL);
 	void openFileTab(FileView* fv = NULL);
+	QString shortenSha(const QString& ref) const;
+	bool confirmGitOperation(const QString& title, const QString& text, QMessageBox::Icon icon = QMessageBox::Question);
+
+	enum PushConfirmation {
+		PushCancelled,
+		PushNormal,
+		PushForced
+	};
+
+	PushConfirmation confirmGitPush(const QString& text);
 
 	EM_DECLARE(exExiting);
 
@@ -198,8 +215,8 @@ public:
 	ExternalDiffProc(const QStringList& f, QObject* p)
 		: QProcess(p), filenames(f) {
 
-		connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-		        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+		connect(this, SIGNAL(finished(int,QProcess::ExitStatus)),
+				this, SLOT(on_finished(int,QProcess::ExitStatus)));
 	}
 	~ExternalDiffProc() {
 
@@ -230,8 +247,8 @@ public:
 	ExternalEditorProc(QObject* p)
 	    : QProcess(p) {
 
-		connect(this, SIGNAL(finished(int, QProcess::ExitStatus)),
-		        this, SLOT(on_finished(int, QProcess::ExitStatus)));
+		connect(this, SIGNAL(finished(int,QProcess::ExitStatus)),
+				this, SLOT(on_finished(int,QProcess::ExitStatus)));
 	}
 	~ExternalEditorProc() {
 		terminate();
