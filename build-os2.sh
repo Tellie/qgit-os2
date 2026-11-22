@@ -13,7 +13,7 @@
 #     PREFIX       installatiemap         (standaard ./dist-qt5 of ./dist-qt6)
 #     JOBS         parallelle jobs        (standaard 2)
 #
-#  In 4OS2/CMD: eerst "set JOBS=4" enz., daarna sh build-os2.sh.
+#  In CMD.EXE: eerst "set JOBS=4" enz., daarna sh build-os2.sh.
 #  Alleen POSIX-sh, geen bash-ismen.
 # ------------------------------------------------------------------
 
