@@ -152,23 +152,26 @@ qt_add_resources(RC_SRCS ${RESOURCE_FILES})
 
 add_executable(qgit ${CPP_SOURCES} ${CPP_HEADERS} ${UIS_HDRS} ${RC_SRCS})
 
+# OS/2: program icon (resource file) and .def information
 if(OS2)
-    target_sources(${PROJECT_NAME} PRIVATE src/resources/qgit-os2.rc)
-endif()
+    # version from src/config.h, e.g. #define VERSION "2.13"
+    file(STRINGS ${CMAKE_SOURCE_DIR}/src/config.h QGIT_VERSION_LINE
+         REGEX "^#define VERSION ")
+    string(REGEX REPLACE ".*\"([0-9.]+)\".*" "\\1" QGIT_VERSION "${QGIT_VERSION_LINE}")
+    string(REGEX REPLACE "^[0-9]+\\.([0-9]+).*" "\\1" QGIT_VERSION_MINOR "${QGIT_VERSION}")
+    message(STATUS "qgit version ${QGIT_VERSION}")
 
-if(OS2)
-enable_language(RC)
-set(qgit_SRCS ${zint-qt_SRCS} ${CMAKE_SOURCE_DIR}/src/resources/qgit-os2.rc)
-set_source_files_properties(${CMAKE_SOURCE_DIR}/src/resources/qgit-os2.rc PROPERTIES LANGUAGE RC)
-include_directories(${CMAKE_SOURCE_DIR}/src/resources)
-endif(OS2)
+    enable_language(RC)
+    set(QGIT_OS2_RC ${CMAKE_SOURCE_DIR}/src/resources/qgit-os2.rc)
+    set_source_files_properties(${QGIT_OS2_RC} PROPERTIES LANGUAGE RC)
+    target_sources(qgit PRIVATE ${QGIT_OS2_RC})
+    include_directories(${CMAKE_SOURCE_DIR}/src/resources)
 
-if(OS2)
-set_target_properties(${PROJECT_NAME} PROPERTIES
- OS2_DEF_VENDOR "TeLLie OS2 forever"
- OS2_DEF_PATCH "${QGIT_VERSION_MINOR}"
- OS2_DEF_VERSION "${QGIT_VERSION}"
- OS2_DEF_EXEType "WINDOWAPI")
+    set_target_properties(qgit PROPERTIES
+        OS2_DEF_VENDOR  "TeLLie OS2 forever"
+        OS2_DEF_PATCH   "${QGIT_VERSION_MINOR}"
+        OS2_DEF_VERSION "${QGIT_VERSION}"
+        OS2_DEF_EXEType "WINDOWAPI")
 endif()
 
 target_link_libraries(qgit ${QT_LIBRARIES})
