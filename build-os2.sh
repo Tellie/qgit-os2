@@ -168,7 +168,13 @@ step_install() {
     say "install naar $PREFIX"
     run cmake --install "$BUILDDIR"
     # OS/2-documentatie mee in de installatiemap
-    [ -f "$SRCDIR/README-OS2.txt" ] && cp "$SRCDIR/README-OS2.txt" "$PREFIX/"
+    # README-QT6.txt bij een Qt6-build, README-QT5.txt bij Qt5 (als die er is)
+    readme=$SRCDIR/README-$(echo $QTVER | tr a-z A-Z).txt
+    if [ -f "$readme" ]; then
+        cp "$readme" "$PREFIX/"
+    else
+        warn "$(basename "$readme") niet gevonden, geen readme in $PREFIX"
+    fi
     ok "geinstalleerd in $PREFIX"
 }
 

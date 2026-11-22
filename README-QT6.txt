@@ -5,7 +5,7 @@
 ****                All the money you send will go to the QT5 project                          ****
 ===================================================================================================
 
-qgit v2.13
+qgit v2.13 for OS/2 - Qt 6.8.3 build
 
  CONTENTS OF THIS FILE
  =====================
@@ -32,7 +32,8 @@ qgit v2.13
 1. INTRODUCTION
 ===============
 
-Welcome to qgit v2.13 port for OS/2 and eComStation.
+Welcome to qgit v2.13 port for OS/2, eComStation and ArcaOS.
+This build is compiled with GCC 15.2.0 against Qt 6.8.3.
 
 With qgit you will be able to browse revisions history, view patch content
 and changed files, graphically following different development branches.
@@ -40,37 +41,62 @@ and changed files, graphically following different development branches.
 
 2. REQUIREMENTS
 ===============
-  The following requirements can be installed either by rpm or by zip files  
-  except Extended System Tray widget which is currently available as zip only.
-  
+
+  git
+  ---
+  qgit is a front end for git, so git must be installed and in the PATH:
+   1. yum install git
 
   RPM Installation (preferred):
   ============================
-  klibc
-  -----
+  klibc and LIBCx
+  ---------------
    1. yum install libc
-  
-  
-  --------
+   2. yum install libcx
+   3. yum install pthread
+
+  GCC runtime
+  -----------
    1. yum install libgcc1
-   2. yum install libssp
-   3. yum install libstdc++6 libstdc++
-   4. yum install libsupc++6 libsupc++
-   5. yum install libgcc-fwd
+   2. yum install libstdc++6 libstdc++
+   3. yum install libsupc++6 libsupc++
+   4. yum install libgcc-fwd
 
-  Qt5 dll
-  -------
-   1. yum install Qt5Core Qt5Gui Qt5Wdgt
+  Libraries used by Qt 6
+  ----------------------
+   1. yum install zlib expat fontconfig
+   2. yum install libicu
+   3. yum install pcre2
+   4. yum install libzstd
 
-    
+  Qt 6.8.3 (not available as RPM)
+  -------------------------------
+  This version needs the Qt 6.8.3 DLLs of TeLLie's Qt 6.8.3 build:
+     QT6CORE.DLL   QT6GUI.DLL   QT6WIDGE.DLL   QT6CORE5.DLL (Core5Compat)
+     plugins\platforms  (the OS/2 platform plugin)
+  and the libraries it depends on:
+     FREETYP6.DLL  PNG1616.DLL  INTL8.DLL
+  They must be in a directory in your LIBPATH (or BEGINLIBPATH).
+
+  If you don't have Qt 6.8.3, use the Qt5 version of qgit instead.
+
+
 3. INSTALLATION
 ===============
 
   qgit
-  ---
-  1. It's create a directory for qgit
-  2. It's create a WPS object for qgit.exe.
-  
+  ----
+  1. Unzip the package to a directory of your choice, e.g. x:\apps\qgit
+  2. Create a WPS object for bin\qgit.exe (optional).
+  3. Start qgit in (or open) a git repository.
+
+  External tools (optional)
+  -------------------------
+  The default external diff viewer (kompare) and editor (emacs) do not
+  exist on OS/2; change them in Edit -> Settings. Syntax highlighting
+  uses source-highlight if it is installed; without it qgit just shows
+  plain text.
+
 
 4. LICENSE, COPYRIGHT, DISCLAIMER
 =================================
@@ -123,9 +149,14 @@ development, you can do so in one of the following ways:
 
 8. HISTORY
 ==========
-Compiled now with Qt v5.15.2
+Compiled now with Qt v6.8.3 (GCC 15.2.0)
 
 Changelog:
+
+2.13 (Qt 6.8.3 build)
+OS/2: linked with LIBCx (-lcx); fixes a crash at startup while Qt scans
+  the platform plugins ("uncommitted memory allocated by LIBCX0")
+Readme renamed to README-QT6.txt, requirements for Qt 6.8.3 added
 
 Update to upstream qgit (tibirna/qgit 751cb10, sept 2026): rename branch,
   confirmation for drag and drop, fix for the first commit
