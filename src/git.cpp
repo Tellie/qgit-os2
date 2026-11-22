@@ -1799,7 +1799,7 @@ bool Git::getGitDBDir(SCRef wd, QString& gd, bool& changed) {
         if (success) {
                 // 'git rev-parse --git-dir' output could be a relative
                 // to working directory (as ex .git) or an absolute path
-                QDir d(runOutput.startsWith("/") ? runOutput : wd + "/" + runOutput);
+                QDir d(QDir::isAbsolutePath(runOutput) ? runOutput : wd + "/" + runOutput);
                 changed = (d.absolutePath() != gitDir);
                 gd = d.absolutePath();
         }
@@ -1995,7 +1995,7 @@ const QStringList Git::getOthersFiles() {
         QSettings settings;
         QString exFile(settings.value(EX_KEY, EX_DEF).toString());
         if (!exFile.isEmpty()) {
-                QString path = (exFile.startsWith("/")) ? exFile : workDir + "/" + exFile;
+                QString path = QDir::isAbsolutePath(exFile) ? exFile : workDir + "/" + exFile;
                 if (QFile::exists(path))
                         runCmd.append(" --exclude-from=" + quote(exFile));
         }
