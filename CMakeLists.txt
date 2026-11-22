@@ -174,6 +174,13 @@ if(OS2)
         OS2_DEF_PATCH   "${QGIT_VERSION_MINOR}"
         OS2_DEF_VERSION "${QGIT_VERSION}"
         OS2_DEF_EXEType "WINDOWAPI")
+
+    # LIBCx must be linked into the EXE itself: its exception handler
+    # (needed for mmap, e.g. QFile::map() when Qt scans plugins) is only
+    # installed for the main thread when the executable links -lcx.
+    # Without it qgit crashes at startup in QLibraryPrivate::updatePluginState
+    # ("uncommitted memory allocated by LIBCX0").
+    target_link_libraries(qgit cx)
 endif()
 
 target_link_libraries(qgit ${QT_LIBRARIES})
