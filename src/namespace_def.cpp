@@ -25,8 +25,7 @@
 #include "git.h"
 #include "annotate.h"
 
-//#ifdef Q_OS_WIN32 // *********  platform dependent code ******
-#if defined(Q_OS_WIN32) || defined(__OS2__)
+#ifdef Q_OS_WIN32 // *********  platform dependent code ******
 
 const QString QGit::SCRIPT_EXT = ".bat";
 
@@ -50,6 +49,42 @@ static void adjustPath(QStringList& args, bool* winShell) {
 		args.prepend("/c");
 		args.prepend("cmd.exe");
 		*winShell = true;
+	}
+}
+
+#elif defined(Q_OS_OS2) // OS/2 specific code
+
+#include <sys/types.h> // used by chmod()
+#include <sys/stat.h>  // used by chmod()
+
+const QString QGit::SCRIPT_EXT = ".sh";
+
+static void adjustPath(QStringList& args, bool* winShell) {
+/*
+   OS/2 uses the Unix code paths (git, sh, coreutils from kLIBC/RPM),
+   with two exceptions:
+   - QProcess cannot start a '#!' script directly, so qgit's own
+     scripts (see Git::runAsScript()) are run through sh.
+   - .cmd/.bat files (e.g. a user configured external tool) need the
+     OS/2 command interpreter.
+*/
+	if (winShell)
+		*winShell = false;
+
+	const QString prog(args.first()); // copy: args is modified below
+
+	if (prog == "git" || prog.startsWith("git-")) {
+
+		if (!QGit::GIT_DIR.isEmpty()) // git not in PATH
+			args.first().prepend(QGit::GIT_DIR + '/');
+
+	} else if (prog.endsWith(QGit::SCRIPT_EXT, Qt::CaseInsensitive)) {
+		args.prepend("sh");
+
+	} else if (prog.endsWith(".cmd", Qt::CaseInsensitive)
+	        || prog.endsWith(".bat", Qt::CaseInsensitive)) {
+		args.prepend("/c");
+		args.prepend("cmd.exe");
 	}
 }
 
@@ -473,16 +508,14 @@ bool QGit::writeToFile(SCRef fileName, SCRef data, bool setExecutable) {
 	QString data2(data);
 	QTextStream stream(&file);
 
-//#ifdef Q_OS_WIN32
-#if defined(Q_OS_WIN32) || defined(Q_OS_OS2)
+#ifdef Q_OS_WIN32
 	data2.replace("\r\n", "\n"); // change windows CRLF to linux
 	data2.replace("\n", "\r\n"); // then change all linux CRLF to windows
 #endif
 	stream << data2;
 	file.close();
 
-//#ifndef Q_OS_WIN32
-#if !defined(Q_OS_WIN32) && !defined(Q_OS_OS2)
+#ifndef Q_OS_WIN32
 	if (setExecutable)
 		chmod(fileName.toLatin1().constData(), 0755);
 #endif
@@ -500,8 +533,7 @@ bool QGit::writeToFile(SCRef fileName, const QByteArray& data, bool setExecutabl
 	stream.writeRawData(data.constData(), data.size());
 	file.close();
 
-//#ifndef Q_OS_WIN32
-#if !defined(Q_OS_WIN32) && !defined(Q_OS_OS2)
+#ifndef Q_OS_WIN32
 	if (setExecutable)
 		chmod(fileName.toLatin1().constData(), 0755);
 #endif
